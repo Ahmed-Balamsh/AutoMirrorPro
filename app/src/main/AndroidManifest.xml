@@ -11,10 +11,23 @@
 
     <application
         android:label="AutoMirror Pro"
+        android:icon="@mipmap/ic_launcher"
+        android:roundIcon="@mipmap/ic_launcher"
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.Light.NoActionBar">
 
-        <!-- تعريف دعم Android Auto CarAppService -->
+        <!-- 1. شاشة التطبيق في الجوال (تظهر الأيقونة وتفعل زر الفتح وطلب صلاحية البث) -->
+        <activity
+            android:name=".MirrorProjectionBridge"
+            android:exported="true"
+            android:label="AutoMirror Pro">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- 2. تعريف دعم Android Auto CarAppService -->
         <meta-data
             android:name="com.google.android.gms.car.application"
             android:resource="@xml/automotive_app_desc" />
@@ -22,7 +35,7 @@
             android:name="androidx.car.app.minCarApiLevel"
             android:value="1" />
 
-        <!-- خدمة عرض سطح الفيديو المباشر على شاشة السيارة -->
+        <!-- 3. خدمة عرض سطح الفيديو المباشر على شاشة السيارة -->
         <service
             android:name=".AutoMirrorCarService"
             android:exported="true"
@@ -33,11 +46,12 @@
             </intent-filter>
         </service>
 
-        <!-- خدمة التقاط شاشة الهاتف (MediaProjection) بالخلفية -->
+        <!-- 4. خدمة التقاط شاشة الهاتف بالخلفية -->
         <service
             android:name=".ScreenCaptureService"
             android:enabled="true"
             android:exported="false"
             android:foregroundServiceType="mediaProjection" />
+
     </application>
 </manifest>
