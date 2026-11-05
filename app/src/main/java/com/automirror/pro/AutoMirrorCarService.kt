@@ -17,7 +17,6 @@ import androidx.car.app.validation.HostValidator
 
 class AutoMirrorCarService : CarAppService() {
     override fun createHostValidator(): HostValidator {
-        // السماح لجميع مضيفي Android Auto لعرض شاشة الجوال بدون حظر
         return HostValidator.ALLOW_ALL_HOSTS_VALIDATOR
     }
 
@@ -39,7 +38,6 @@ class MirrorSurfaceScreen(carContext: CarContext) : Screen(carContext), SurfaceC
 
     override fun onSurfaceAvailable(surfaceContainer: SurfaceContainer) {
         activeSurface = surfaceContainer.surface
-        // ربط سطح شاشة السيارة مباشرة بمستقبل الفيديو (H264) على المنفذ 8989
         MirrorProjectionBridge.attachCarSurface(
             surface = activeSurface,
             width = surfaceContainer.width,
@@ -54,7 +52,6 @@ class MirrorSurfaceScreen(carContext: CarContext) : Screen(carContext), SurfaceC
     }
 
     override fun onClick(x: Float, y: Float) {
-        // إرسال نقرات شاشة السيارة إلى خدمة AccessibilityService في الجوال
         MirrorProjectionBridge.dispatchTap(x, y)
     }
 
@@ -66,7 +63,7 @@ class MirrorSurfaceScreen(carContext: CarContext) : Screen(carContext), SurfaceC
                     .setOnClickListener { MirrorProjectionBridge.toggleOrientation() }
                     .build()
             )
-            .addAction(Action.Builder.PAN)
+            .addAction(Action.PAN)
             .build()
 
         return NavigationTemplate.Builder()
