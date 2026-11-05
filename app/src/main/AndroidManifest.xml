@@ -33,7 +33,7 @@
             android:resource="@xml/automotive_app_desc" />
         <meta-data
             android:name="androidx.car.app.minCarApiLevel"
-            android:value="1" />
+            android:value="2" />
 
         <!-- 3. خدمة عرض سطح الفيديو المباشر على شاشة السيارة -->
         <service
