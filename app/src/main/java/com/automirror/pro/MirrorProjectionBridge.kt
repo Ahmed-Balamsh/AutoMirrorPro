@@ -1,34 +1,49 @@
 package com.automirror.pro
 
-import android.app.Service
+import android.app.Activity
 import android.content.Intent
 import android.hardware.display.DisplayManager
 import android.hardware.display.VirtualDisplay
-import android.media.MediaCodecInfo
 import android.media.MediaFormat
 import android.media.projection.MediaProjection
-import android.os.IBinder
+import android.media.projection.MediaProjectionManager
+import android.os.Bundle
 import android.view.Surface
+import androidx.appcompat.app.AppCompatActivity
 
-class ScreenCaptureService : Service() {
-    override fun onBind(intent: Intent?): IBinder? = null
-}
+class MirrorProjectionBridge : AppCompatActivity() {
 
-object MirrorProjectionBridge {
     private var mediaProjection: MediaProjection? = null
     private var virtualDisplay: VirtualDisplay? = null
+    private val SCREEN_CAPTURE_REQUEST_CODE = 1001
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        
+        // طلب إذن التقاط الشاشة من المستخدم عند فتح التطبيق من الجوال
+        val projectionManager = getSystemService(MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
+        startActivityForResult(projectionManager.createScreenCaptureIntent(), SCREEN_CAPTURE_REQUEST_CODE)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == SCREEN_CAPTURE_REQUEST_CODE && resultCode == Activity.RESULT_OK && data != null) {
+            val projectionManager = getSystemService(MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
+            mediaProjection = projectionManager.getMediaProjection(resultCode, data)
+        }
+    }
 
     fun attachCarSurface(surface: Surface?, width: Int, height: Int, dpi: Int) {
         if (surface == null || mediaProjection == null) return
 
         val format = MediaFormat.createVideoFormat(MediaFormat.MIMETYPE_VIDEO_AVC, width, height).apply {
-            setInteger(MediaFormat.KEY_COLOR_FORMAT, MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface)
+            setInteger(MediaFormat.KEY_COLOR_FORMAT, android.media.MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface)
             setInteger(MediaFormat.KEY_BIT_RATE, 6_500_000)
             setInteger(MediaFormat.KEY_FRAME_RATE, 60)
             setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, 1)
         }
 
-        // عرض مباشر من شاشة الجوال إلى Surface شاشة أندرويد أوتو بدون تأخير
+        // إنشاء العرض المرئي الافتراضي لبث شاشة الجوال إلى شاشة السيارة
         virtualDisplay = mediaProjection?.createVirtualDisplay(
             "AutoMirror Pro-Display",
             width,
@@ -51,6 +66,6 @@ object MirrorProjectionBridge {
     }
 
     fun toggleOrientation() {
-        // تبديل الوضع الأفقي / العمودي التلقائي
+        // التبديل الوضع الأفقي / العمودي التلقائي
     }
 }
